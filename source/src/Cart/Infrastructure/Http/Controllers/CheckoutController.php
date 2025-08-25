@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Cart\Infrastructure\Controllers;
+namespace App\Cart\Infrastructure\Http\Controllers;
 
 use App\Cart\Application\DTO\ProcessCheckoutDTO;
 use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutHandler;
+use App\Cart\Infrastructure\Http\Requests\ProcessCheckoutRequest;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class CheckoutController extends AbstractController
 {
@@ -96,13 +99,22 @@ final class CheckoutController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(Request $request, string $cartId): JsonResponse
+    public function __invoke(Request $request, string $cartId,
+        SerializerInterface $serializer,
+        ValidatorInterface $validator): JsonResponse
     {
         try {
             $data = json_decode($request->getContent(), true);
+            $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, ...$data], ProcessCheckoutRequest::class);
+            $errors = $validator->validate($addItemRequest);
 
-            if (!isset($data['customer_email'])) {
-                return $this->json(['error' => 'Falta el campo de cantidad'], Response::HTTP_BAD_REQUEST);
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[] = $error->getMessage();
+                }
+
+                return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
             $dto = new ProcessCheckoutDTO(

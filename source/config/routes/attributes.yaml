@@ -1,6 +1,6 @@
 cart_controllers:
     resource: 
-        path: ../../src/Cart/Infrastructure/Controllers/
-        namespace: App\Cart\Infrastructure\Controllers\
+        path: ../../src/Cart/Infrastructure/Http/Controllers/
+        namespace: App\Cart\Infrastructure\Http\Controllers\
     type: attribute
     prefix: /api
