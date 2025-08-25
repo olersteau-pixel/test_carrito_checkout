@@ -29,6 +29,10 @@ sh: ## Conectarse a la terminal del contenedor de la aplicación
 install: ## Install dependencies
 	docker-compose exec ${APP_SERVICE} /bin/sh -c 'composer install'
 
+test-unit: ## Run unit tests
+	docker-compose exec ${APP_SERVICE} /bin/sh -c 'vendor/bin/phpunit --list-tests'
+	docker-compose exec ${APP_SERVICE} /bin/sh -c 'vendor/bin/phpunit tests/Unit'	
+
 phpstan:
 	docker-compose exec ${APP_SERVICE} /bin/sh -c 'vendor/bin/phpstan analyze -c phpstan.neon src'
 
