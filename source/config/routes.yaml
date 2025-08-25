@@ -3,3 +3,28 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# Swagger UI
+nelmio_api_doc_swagger_ui:
+    path: /api/doc/{area}
+    methods: [GET]
+    defaults:
+        _controller: nelmio_api_doc.controller.swagger_ui
+        area: default
+    requirements:
+        area: "default|.*"
+
+# OpenAPI JSON
+nelmio_api_doc_swagger:
+    path: /api/doc.json
+    methods: [GET]  
+    defaults:
+        _controller: nelmio_api_doc.controller.swagger
+
+# Ruta adicional sin área
+nelmio_api_doc_index:
+    path: /api/doc
+    methods: [GET]
+    defaults:
+        _controller: nelmio_api_doc.controller.swagger_ui
+        area: default
