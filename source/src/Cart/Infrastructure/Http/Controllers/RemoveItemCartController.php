@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Cart\Infrastructure\Controllers;
+namespace App\Cart\Infrastructure\Http\Controllers;
 
 use App\Cart\Application\DTO\RemoveItemFromCartDTO;
 use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler;
 use App\Cart\Domain\Exception\ProductNotFoundException;
+use App\Cart\Infrastructure\Http\Requests\RemoveItemRequest;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class RemoveItemCartController extends AbstractController
 {
@@ -70,9 +73,23 @@ final class RemoveItemCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(string $cartId, string $productId): JsonResponse
+    public function __invoke(string $cartId, string $productId,
+        SerializerInterface $serializer,
+        ValidatorInterface $validator): JsonResponse
     {
         try {
+            $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, 'product_id' => $productId], RemoveItemRequest::class);
+            $errors = $validator->validate($addItemRequest);
+
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[] = $error->getMessage();
+                }
+
+                return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
+            }
+
             $dto = new RemoveItemFromCartDTO($cartId, $productId);
             ($this->removeItemFromCartHandler)($dto);
 

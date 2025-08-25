@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Cart\Infrastructure\Controllers;
+namespace App\Cart\Infrastructure\Http\Controllers;
 
 use App\Cart\Application\DTO\GetCartDTO;
 use App\Cart\Application\Handlers\GetCart\GetCartHandler;
+use App\Cart\Infrastructure\Http\Requests\GetCartRequest;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class GetCartController extends AbstractController
 {
@@ -60,9 +64,23 @@ final class GetCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(string $cartId): JsonResponse
+    public function __invoke(string $cartId,
+        SerializerInterface $serializer,
+        ValidatorInterface $validator): JsonResponse
     {
         try {
+            $addItemRequest = $serializer->denormalize(['cart_id' => $cartId], GetCartRequest::class);
+            $errors = $validator->validate($addItemRequest);
+
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[] = $error->getMessage();
+                }
+
+                return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
+            }
+
             $dto = new GetCartDTO($cartId);
             $cartDTO = ($this->getCartHandler)($dto);
 
