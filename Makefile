@@ -29,6 +29,12 @@ sh: ## Conectarse a la terminal del contenedor de la aplicación
 install: ## Install dependencies
 	docker-compose exec ${APP_SERVICE} /bin/sh -c 'composer install'
 
+init-db: ## Seed database with sample data
+	docker-compose exec ${APP_SERVICE} /bin/sh -c 'php bin/console doctrine:database:create --if-not-exists'	
+	docker-compose exec ${APP_SERVICE} /bin/sh -c 'php bin/console doctrine:schema:update --force'	
+	docker-compose exec ${APP_SERVICE} /bin/sh -c 'php bin/console app:seed-products'
+
+
 test-unit: ## Run unit tests
 	docker-compose exec ${APP_SERVICE} /bin/sh -c 'vendor/bin/phpunit --list-tests'
 	docker-compose exec ${APP_SERVICE} /bin/sh -c 'vendor/bin/phpunit tests/Unit'	
