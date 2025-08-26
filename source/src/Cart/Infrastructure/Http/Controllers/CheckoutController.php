@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\ProcessCheckoutDTO;
-use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutHandler;
+use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutCommand;
 use App\Cart\Infrastructure\Http\Requests\ProcessCheckoutRequest;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,11 +14,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Shared\Application\Bus\CommandBusInterface;
 
 final class CheckoutController extends AbstractController
 {
     public function __construct(
-        private ProcessCheckoutHandler $checkoutHandler,
+        private CommandBusInterface $commandBus,
     ) {
     }
 
@@ -117,12 +117,11 @@ final class CheckoutController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new ProcessCheckoutDTO(
+            $command = new ProcessCheckoutCommand(
                 $cartId,
                 $data['customer_email']
             );
-
-            $orderId = ($this->checkoutHandler)($dto);
+            $orderId = $this->commandBus->handle($command);
 
             return $this->json([
                 'message' => sprintf('Checkout Realizado correcto se ha generado el id de pedido %s', $orderId),

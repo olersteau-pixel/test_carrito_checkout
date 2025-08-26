@@ -16,4 +16,5 @@ framework:
             'App\Cart\Application\Handlers\AddItemToCart\AddItemToCartCommand': sync
             'App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartCommand': sync
             'App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemCommand': sync
+            'App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutCommand': sync
             'App\Cart\Application\Handlers\GetCart\GetCartQuery': sync

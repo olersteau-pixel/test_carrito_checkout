@@ -31,6 +31,7 @@ services:
                 App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler: '@App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler'
                 App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler: '@App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler'
                 App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemHandler: '@App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemHandler'
+                App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutHandler: '@App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutHandler'
     
     App\Shared\Application\Bus\CommandBusInterface: '@App\Shared\Infrastructure\Bus\SymfonyCommandBus'                
 
