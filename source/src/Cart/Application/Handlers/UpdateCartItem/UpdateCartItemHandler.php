@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Cart\Application\Handlers\UpdateCartItem;
 
-use App\Cart\Application\DTO\UpdateCartItemDTO;
 use App\Cart\Domain\Exception\CartNotFoundException;
 use App\Cart\Domain\Exception\ProductNotFoundException;
 use App\Cart\Domain\Interfaces\CartRepositoryInterface;
 use App\Cart\Domain\Interfaces\ProductRepositoryInterface;
 use App\Cart\Domain\ValueObject\CartId;
 use App\Cart\Domain\ValueObject\ProductId;
+use App\Shared\Application\Bus\CommandHandlerInterface;
 
-final class UpdateCartItemHandler
+final class UpdateCartItemHandler implements CommandHandlerInterface
 {
     public function __construct(
         private CartRepositoryInterface $cartRepository,
@@ -20,20 +20,20 @@ final class UpdateCartItemHandler
     ) {
     }
 
-    public function __invoke(UpdateCartItemDTO $dto): void
+    public function __invoke(UpdateCartItemCommand $command): void
     {
-        $cartId = new CartId($dto->cartId);
-        $productId = new ProductId($dto->productId);
-        $quantity = $dto->quantity;
+        $cartId = new CartId($command->cartId);
+        $productId = new ProductId($command->productId);
+        $quantity = $command->quantity;
 
         $cart = $this->cartRepository->findById($cartId);
         if (!$cart) {
-            throw CartNotFoundException::withId($dto->cartId);
+            throw CartNotFoundException::withId($command->cartId);
         }
 
         $product = $this->productRepository->findById($productId);
         if (!$product) {
-            throw ProductNotFoundException::withId($dto->productId);
+            throw ProductNotFoundException::withId($command->productId);
         }
         $cart->updateItemQuantity($product, $quantity);
         $this->cartRepository->save($cart);

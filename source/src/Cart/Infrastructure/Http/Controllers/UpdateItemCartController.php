@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\UpdateCartItemDTO;
-use App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemHandler;
+use App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemCommand;
 use App\Cart\Infrastructure\Http\Requests\UpdateItemRequest;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,11 +14,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Shared\Application\Bus\CommandBusInterface;
+
 
 final class UpdateItemCartController extends AbstractController
 {
     public function __construct(
-        private UpdateCartItemHandler $updateCartItemHandler,
+        private CommandBusInterface $commandBus,
     ) {
     }
 
@@ -78,13 +79,13 @@ final class UpdateItemCartController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new UpdateCartItemDTO(
+            $command = new UpdateCartItemCommand(
                 $cartId,
                 $productId,
                 (int) $data['quantity']
             );
 
-            ($this->updateCartItemHandler)($dto);
+            $this->commandBus->handle($command);
 
             return $this->json(['message' => 'Carrito actualizado']);
         } catch (\InvalidArgumentException $e) {
