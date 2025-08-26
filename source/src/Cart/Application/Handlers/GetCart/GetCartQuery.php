@@ -9,6 +9,7 @@ use App\Shared\Application\Bus\QueryInterface;
 final class GetCartQuery implements QueryInterface
 {
     public function __construct(
-        public readonly string $cartId
-    ) {}
+        public readonly string $cartId,
+    ) {
+    }
 }

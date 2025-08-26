@@ -38,6 +38,6 @@ final class UpdateCartItemHandler implements CommandHandlerInterface
         $cart->updateItemQuantity($product, $quantity);
         $this->cartRepository->save($cart);
 
-        return null;        
+        return null;
     }
 }

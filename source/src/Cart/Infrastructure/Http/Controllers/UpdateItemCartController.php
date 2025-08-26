@@ -6,6 +6,7 @@ namespace App\Cart\Infrastructure\Http\Controllers;
 
 use App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemCommand;
 use App\Cart\Infrastructure\Http\Requests\UpdateItemRequest;
+use App\Shared\Application\Bus\CommandBusInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,8 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Shared\Application\Bus\CommandBusInterface;
-
 
 final class UpdateItemCartController extends AbstractController
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Cart\Infrastructure\Http\Controllers;
 
 use App\Cart\Application\Handlers\GetCart\GetCartQuery;
-use App\Cart\Application\Handlers\GetCart\GetCartHandler;
 use App\Cart\Infrastructure\Http\Requests\GetCartRequest;
+use App\Shared\Application\Bus\QueryBusInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,12 +14,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Shared\Application\Bus\QueryBusInterface;
 
 final class GetCartController extends AbstractController
 {
     public function __construct(
-        private QueryBusInterface $queryBus
+        private QueryBusInterface $queryBus,
     ) {
     }
 

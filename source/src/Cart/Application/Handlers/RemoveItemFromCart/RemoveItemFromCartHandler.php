@@ -12,7 +12,6 @@ use App\Cart\Domain\ValueObject\CartId;
 use App\Cart\Domain\ValueObject\ProductId;
 use App\Shared\Application\Bus\CommandHandlerInterface;
 
-
 final class RemoveItemFromCartHandler implements CommandHandlerInterface
 {
     public function __construct(
@@ -39,6 +38,6 @@ final class RemoveItemFromCartHandler implements CommandHandlerInterface
         $cart->removeItem($cart, $product);
         $this->cartRepository->save($cart);
 
-        return null;        
+        return null;
     }
 }

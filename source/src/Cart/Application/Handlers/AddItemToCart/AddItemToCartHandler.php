@@ -38,7 +38,7 @@ final class AddItemToCartHandler implements CommandHandlerInterface
 
         $cart->addItem($cart, $product, $quantity);
         $this->cartRepository->save($cart);
-        
+
         return null;
     }
 }
