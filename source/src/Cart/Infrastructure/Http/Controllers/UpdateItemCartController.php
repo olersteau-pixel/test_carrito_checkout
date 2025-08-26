@@ -60,10 +60,13 @@ final class UpdateItemCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(Request $request, string $cartId, string $productId,
+    public function __invoke(
+        Request $request,
+        string $cartId,
+        string $productId,
         DenormalizerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, 'product_id' => $productId, ...$data], UpdateItemRequest::class);

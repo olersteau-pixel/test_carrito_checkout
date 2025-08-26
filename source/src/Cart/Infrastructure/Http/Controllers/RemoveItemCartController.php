@@ -46,7 +46,8 @@ final class RemoveItemCartController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'El producto ha sido eliminado del carrito'),
             new OA\Response(response: 400, description: 'Falta el campo de cantidad'),
-            new OA\Response(response: 404,
+            new OA\Response(
+                response: 404,
                 description: 'Recurso no encontrado',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -73,10 +74,12 @@ final class RemoveItemCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(string $cartId, string $productId,
+    public function __invoke(
+        string $cartId,
+        string $productId,
         DenormalizerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, 'product_id' => $productId], RemoveItemRequest::class);
             $errors = $validator->validate($addItemRequest);

@@ -64,10 +64,11 @@ final class GetCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(string $cartId,
+    public function __invoke(
+        string $cartId,
         DenormalizerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId], GetCartRequest::class);
             $errors = $validator->validate($addItemRequest);

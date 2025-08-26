@@ -48,7 +48,8 @@ final class CheckoutController extends AbstractController
         ),
         responses: [
             new OA\Response(response: 200, description: 'Checkout Realizado correcto se ha generado el id de pedido 6222b469-a0e6-4b3d-9a30-5e2b809b9d41'),
-            new OA\Response(response: 400,
+            new OA\Response(
+                response: 400,
                 description: 'Error en los datos',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -72,7 +73,8 @@ final class CheckoutController extends AbstractController
                     ]
                 )
             ),
-            new OA\Response(response: 404,
+            new OA\Response(
+                response: 404,
                 description: 'Recurso no encontrado',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -99,10 +101,12 @@ final class CheckoutController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(Request $request, string $cartId,
+    public function __invoke(
+        Request $request,
+        string $cartId,
         DenormalizerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, ...$data], ProcessCheckoutRequest::class);

@@ -50,7 +50,8 @@ final class AddItemCartController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Carrito actualizado'),
             new OA\Response(response: 400, description: 'Falta el campo de cantidad'),
-            new OA\Response(response: 404,
+            new OA\Response(
+                response: 404,
                 description: 'Recurso no encontrado',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -77,10 +78,12 @@ final class AddItemCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(Request $request, string $cartId,
+    public function __invoke(
+        Request $request,
+        string $cartId,
         DenormalizerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, ...$data], AddItemRequest::class);
