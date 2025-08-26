@@ -18,7 +18,7 @@ class SymfonyCommandBus implements CommandBusInterface
     {
         $commandClass = get_class($command);
         
-        $handlerName = $this->getHandlerName($commandClass);
+        $handlerName = str_replace('Command', 'Handler', $queryClass);
         
         if (!$this->commandHandlers->has($handlerName)) {
             throw new \RuntimeException("Handler not found for command: {$commandClass}. Expected handler: {$handlerName}");
@@ -26,12 +26,5 @@ class SymfonyCommandBus implements CommandBusInterface
 
         $handler = $this->commandHandlers->get($handlerName);
         $handler($command);
-    }
-    
-    private function getHandlerName(string $commandClass): string
-    {
-        $handlerClass = str_replace('Command', 'Handler', $commandClass);
-        
-        return $handlerClass;
     }
 }

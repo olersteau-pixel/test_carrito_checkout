@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\GetCartDTO;
+use App\Cart\Application\Handlers\GetCart\GetCartQuery;
 use App\Cart\Application\Handlers\GetCart\GetCartHandler;
 use App\Cart\Infrastructure\Http\Requests\GetCartRequest;
 use OpenApi\Attributes as OA;
@@ -14,11 +14,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Shared\Application\Bus\QueryBusInterface;
 
 final class GetCartController extends AbstractController
 {
     public function __construct(
-        private GetCartHandler $getCartHandler,
+        private QueryBusInterface $queryBus
     ) {
     }
 
@@ -81,8 +82,8 @@ final class GetCartController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new GetCartDTO($cartId);
-            $cartDTO = ($this->getCartHandler)($dto);
+            $query = new GetCartQuery($cartId);
+            $cartDTO = $this->queryBus->handle($query);
 
             return $this->json([
                 'id' => $cartDTO->id,
