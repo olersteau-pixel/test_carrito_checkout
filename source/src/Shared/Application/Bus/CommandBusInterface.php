@@ -6,5 +6,5 @@ namespace App\Shared\Application\Bus;
 
 interface CommandBusInterface
 {
-    public function handle(CommandInterface $command): void;
+    public function handle(CommandInterface $command): mixed;
 }

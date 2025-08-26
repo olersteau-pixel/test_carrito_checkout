@@ -14,7 +14,7 @@ class SymfonyCommandBus implements CommandBusInterface
         private ServiceLocator $commandHandlers
     ) {}
 
-    public function handle(CommandInterface $command): void
+    public function handle(CommandInterface $command): mixed
     {
         $commandClass = get_class($command);
         
@@ -25,6 +25,6 @@ class SymfonyCommandBus implements CommandBusInterface
         }
 
         $handler = $this->commandHandlers->get($handlerName);
-        $handler($command);
+        return $handler($command);
     }
 }
