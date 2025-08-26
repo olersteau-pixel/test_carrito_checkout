@@ -21,7 +21,7 @@ final class RemoveItemFromCartHandler implements CommandHandlerInterface
     ) {
     }
 
-    public function __invoke(RemoveItemFromCartCommand $command): void
+    public function __invoke(RemoveItemFromCartCommand $command): mixed
     {
         $cartId = new CartId($command->cartId);
         $productId = new ProductId($command->productId);
@@ -38,5 +38,7 @@ final class RemoveItemFromCartHandler implements CommandHandlerInterface
 
         $cart->removeItem($cart, $product);
         $this->cartRepository->save($cart);
+
+        return null;        
     }
 }

@@ -20,7 +20,7 @@ final class AddItemToCartHandler implements CommandHandlerInterface
     ) {
     }
 
-    public function __invoke(AddItemToCartCommand $command): void
+    public function __invoke(AddItemToCartCommand $command): mixed
     {
         $cartId = new CartId($command->cartId);
         $productId = new ProductId($command->productId);
@@ -38,5 +38,7 @@ final class AddItemToCartHandler implements CommandHandlerInterface
 
         $cart->addItem($cart, $product, $quantity);
         $this->cartRepository->save($cart);
+        
+        return null;
     }
 }

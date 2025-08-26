@@ -20,7 +20,7 @@ final class UpdateCartItemHandler implements CommandHandlerInterface
     ) {
     }
 
-    public function __invoke(UpdateCartItemCommand $command): void
+    public function __invoke(UpdateCartItemCommand $command): mixed
     {
         $cartId = new CartId($command->cartId);
         $productId = new ProductId($command->productId);
@@ -37,5 +37,7 @@ final class UpdateCartItemHandler implements CommandHandlerInterface
         }
         $cart->updateItemQuantity($product, $quantity);
         $this->cartRepository->save($cart);
+
+        return null;        
     }
 }
