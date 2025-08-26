@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Cart\Application\Handlers;
 
-use App\Cart\Application\DTO\AddItemToCartDTO;
+use App\Cart\Application\Handlers\AddItemToCart\AddItemToCartCommand;
 use App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler;
 use App\Cart\Domain\Entity\Cart;
 use App\Cart\Domain\Entity\Product;
@@ -43,7 +43,7 @@ final class AddItemToCartHandlerTest extends TestCase
         $product = new Product($productId->value(), 'Test Product', 1000, 10);
         $cart = new Cart($cartId->value());
         
-        $dto = new AddItemToCartDTO($cartId->value(), $productId->value(), 3);
+        $command = new AddItemToCartCommand($cartId->value(), $productId->value(), 3);
         
         $this->cartRepository
             ->expects($this->once())
@@ -62,7 +62,7 @@ final class AddItemToCartHandlerTest extends TestCase
             ->method('save')
             ->with($cart);
         
-        ($this->handler)($dto);
+        ($this->handler)($command);
         
         $this->assertTrue($cart->hasItem($productId->value()));
         $this->assertEquals(3, $cart->getItem($productId->value())->quantity());
@@ -74,7 +74,7 @@ final class AddItemToCartHandlerTest extends TestCase
         $productId = ProductId::generate();
         $cart = new Cart($cartId->value());
 
-        $dto = new AddItemToCartDTO($cartId->value(), $productId->value(), 2);
+        $command = new AddItemToCartCommand($cartId->value(), $productId->value(), 2);
         
         $this->cartRepository
             ->expects($this->once())
@@ -88,7 +88,7 @@ final class AddItemToCartHandlerTest extends TestCase
         
         $this->expectException(ProductNotFoundException::class);
         
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }
 
     public function test_should_throw_exception_when_add_item_to_not_found_cart(): void
@@ -97,7 +97,7 @@ final class AddItemToCartHandlerTest extends TestCase
         $productId = ProductId::generate();
         $product = new Product($productId->value(), 'Test Product', 1000, 10);
         
-        $dto = new AddItemToCartDTO($cartId->value(), $productId->value(), 2);
+        $command = new AddItemToCartCommand($cartId->value(), $productId->value(), 2);
         
         $this->cartRepository
             ->expects($this->once())
@@ -108,6 +108,6 @@ final class AddItemToCartHandlerTest extends TestCase
         
         $this->expectException(CartNotFoundException::class);
 
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }    
 }

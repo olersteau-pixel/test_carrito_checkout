@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Cart\Application\Handlers;
 
-use App\Cart\Application\DTO\RemoveItemFromCartDTO;
+use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartCommand;
 use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler;
 use App\Cart\Domain\Entity\Cart;
 use App\Cart\Domain\Entity\Product;
@@ -42,7 +42,7 @@ final class RemoveItemFromCartHandlerTest extends TestCase
         $cartId = CartId::generate();
         $productId = ProductId::generate();
         $product = new Product($productId->value(), 'Test Product', 1000, 10);
-        $dto = new RemoveItemFromCartDTO($cartId->value(), $productId->value(), 3);
+        $command = new RemoveItemFromCartCommand($cartId->value(), $productId->value(), 3);
         
         $this->cartRepository
             ->expects($this->once())
@@ -66,7 +66,7 @@ final class RemoveItemFromCartHandlerTest extends TestCase
             ->method('save')
             ->with($cartMock);
         
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }
 
     public function test_should_throw_exception_when_product_not_found(): void
@@ -75,7 +75,7 @@ final class RemoveItemFromCartHandlerTest extends TestCase
         $productId = ProductId::generate();
         $cart = new Cart($cartId->value());
 
-        $dto = new RemoveItemFromCartDTO($cartId->value(), $productId->value(), 2);
+        $command = new RemoveItemFromCartCommand($cartId->value(), $productId->value(), 2);
         
         $this->cartRepository
             ->expects($this->once())
@@ -89,7 +89,7 @@ final class RemoveItemFromCartHandlerTest extends TestCase
         
         $this->expectException(ProductNotFoundException::class);
         
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }
 
     public function test_should_throw_exception_when_add_item_to_not_found_cart(): void
@@ -97,7 +97,7 @@ final class RemoveItemFromCartHandlerTest extends TestCase
         $cartId = CartId::generate();
         $productId = ProductId::generate();
         
-        $dto = new RemoveItemFromCartDTO($cartId->value(), $productId->value(), 2);
+        $command = new RemoveItemFromCartCommand($cartId->value(), $productId->value(), 2);
         
         $this->cartRepository
             ->expects($this->once())
@@ -108,6 +108,6 @@ final class RemoveItemFromCartHandlerTest extends TestCase
         
         $this->expectException(CartNotFoundException::class);
 
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }    
 }

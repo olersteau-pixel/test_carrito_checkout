@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Cart\Application\Handlers;
 
-use App\Cart\Application\DTO\ProcessCheckoutDTO;
+use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutCommand;
 use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutHandler;
 use App\Cart\Domain\Entity\Cart;
 use App\Cart\Domain\Entity\Product;
@@ -42,7 +42,7 @@ final class ProcessCheckoutHandlerTest extends TestCase
         $cart = new Cart($cartId->value());
         $cart->addItem($cart, $product, 2);
         
-        $dto = new ProcessCheckoutDTO($cartId->value(), 'test@example.com');
+        $command = new ProcessCheckoutCommand($cartId->value(), 'test@example.com');
         $this->cartRepository
             ->expects($this->once())
             ->method('findById')
@@ -57,7 +57,7 @@ final class ProcessCheckoutHandlerTest extends TestCase
             ->method('save')
             ->with($cart);
         
-        $orderId = ($this->handler)($dto);
+        $orderId = ($this->handler)($command);
         
         $this->assertNotEmpty($orderId);
         $this->assertTrue($cart->isEmpty());
@@ -66,7 +66,7 @@ final class ProcessCheckoutHandlerTest extends TestCase
     public function test_should_throw_exception_when_cart_not_found(): void
     {
         $cartId = CartId::generate();
-        $dto = new ProcessCheckoutDTO($cartId->value(), 'test@example.com');
+        $command = new ProcessCheckoutCommand($cartId->value(), 'test@example.com');
         
         $this->cartRepository
             ->expects($this->once())
@@ -75,14 +75,14 @@ final class ProcessCheckoutHandlerTest extends TestCase
         
         $this->expectException(CartNotFoundException::class);
         
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }
 
     public function test_should_throw_exception_when_cart_is_empty(): void
     {
         $cartId = CartId::generate();
         $cart = new Cart($cartId->value());
-        $dto = new ProcessCheckoutDTO($cartId->value(), 'test@example.com');
+        $command = new ProcessCheckoutCommand($cartId->value(), 'test@example.com');
         
         $this->cartRepository
             ->expects($this->once())
@@ -92,6 +92,6 @@ final class ProcessCheckoutHandlerTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('El carrito esta vacio, no se puede procesar');
         
-        ($this->handler)($dto);
+        ($this->handler)($command);
     }
 }
