@@ -18,7 +18,7 @@ class SymfonyCommandBus implements CommandBusInterface
     {
         $commandClass = get_class($command);
         
-        $handlerName = str_replace('Command', 'Handler', $queryClass);
+        $handlerName = str_replace('Command', 'Handler', $commandClass);
         
         if (!$this->commandHandlers->has($handlerName)) {
             throw new \RuntimeException("Handler not found for command: {$commandClass}. Expected handler: {$handlerName}");

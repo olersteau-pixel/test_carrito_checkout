@@ -29,6 +29,7 @@ services:
         arguments:
             $commandHandlers: !service_locator
                 App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler: '@App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler'
+                App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler: '@App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler'
     
     App\Shared\Application\Bus\CommandBusInterface: '@App\Shared\Infrastructure\Bus\SymfonyCommandBus'                
 

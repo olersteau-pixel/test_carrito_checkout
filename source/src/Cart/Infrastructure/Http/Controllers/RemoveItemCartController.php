@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\RemoveItemFromCartDTO;
+use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartCommand;
 use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler;
 use App\Cart\Domain\Exception\ProductNotFoundException;
 use App\Cart\Infrastructure\Http\Requests\RemoveItemRequest;
@@ -15,11 +15,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Shared\Application\Bus\CommandBusInterface;
 
 final class RemoveItemCartController extends AbstractController
 {
     public function __construct(
-        private RemoveItemFromCartHandler $removeItemFromCartHandler,
+        private CommandBusInterface $commandBus,
     ) {
     }
 
@@ -90,8 +91,8 @@ final class RemoveItemCartController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new RemoveItemFromCartDTO($cartId, $productId);
-            ($this->removeItemFromCartHandler)($dto);
+            $command = new RemoveItemFromCartCommand($cartId, $productId);
+            $this->commandBus->handle($command);
 
             return $this->json(['message' => 'El producto ha sido eliminado del carrito']);
         } catch (\InvalidArgumentException $e) {

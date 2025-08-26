@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Cart\Application\DTO;
+namespace App\Cart\Application\Handlers\RemoveItemFromCart;
+use App\Shared\Application\Bus\CommandInterface;
 
-final class RemoveItemFromCartDTO
+final class RemoveItemFromCartCommand implements CommandInterface
 {
     public string $cartId;
     public string $productId;
