@@ -1,0 +1,20 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            command.bus:
+                middleware:
+                    - doctrine_transaction
+            query.bus: ~
+
+        transports:
+            sync: 'sync://'
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+
+        routing:
+            'App\Cart\Application\Handlers\AddItemToCart\AddItemToCartCommand': sync
+            'App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartCommand': sync
+            'App\Cart\Application\Handlers\UpdateCartItem\UpdateCartItemCommand': sync
+            'App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutCommand': sync
+            'App\Cart\Application\Handlers\GetCart\GetCartQuery': sync

@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\RemoveItemFromCartDTO;
-use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartHandler;
+use App\Cart\Application\Handlers\RemoveItemFromCart\RemoveItemFromCartCommand;
 use App\Cart\Domain\Exception\ProductNotFoundException;
 use App\Cart\Infrastructure\Http\Requests\RemoveItemRequest;
+use App\Shared\Application\Bus\CommandBusInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class RemoveItemCartController extends AbstractController
 {
     public function __construct(
-        private RemoveItemFromCartHandler $removeItemFromCartHandler,
+        private CommandBusInterface $commandBus,
     ) {
     }
 
@@ -46,7 +46,8 @@ final class RemoveItemCartController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'El producto ha sido eliminado del carrito'),
             new OA\Response(response: 400, description: 'Falta el campo de cantidad'),
-            new OA\Response(response: 404,
+            new OA\Response(
+                response: 404,
                 description: 'Recurso no encontrado',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -73,10 +74,12 @@ final class RemoveItemCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(string $cartId, string $productId,
-        SerializerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+    public function __invoke(
+        string $cartId,
+        string $productId,
+        DenormalizerInterface $serializer,
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, 'product_id' => $productId], RemoveItemRequest::class);
             $errors = $validator->validate($addItemRequest);
@@ -90,8 +93,8 @@ final class RemoveItemCartController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new RemoveItemFromCartDTO($cartId, $productId);
-            ($this->removeItemFromCartHandler)($dto);
+            $command = new RemoveItemFromCartCommand($cartId, $productId);
+            $this->commandBus->handle($command);
 
             return $this->json(['message' => 'El producto ha sido eliminado del carrito']);
         } catch (\InvalidArgumentException $e) {

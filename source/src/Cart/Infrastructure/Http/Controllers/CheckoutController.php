@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\ProcessCheckoutDTO;
-use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutHandler;
+use App\Cart\Application\Handlers\ProcessCheckout\ProcessCheckoutCommand;
 use App\Cart\Infrastructure\Http\Requests\ProcessCheckoutRequest;
+use App\Shared\Application\Bus\CommandBusInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class CheckoutController extends AbstractController
 {
     public function __construct(
-        private ProcessCheckoutHandler $checkoutHandler,
+        private CommandBusInterface $commandBus,
     ) {
     }
 
@@ -48,7 +48,8 @@ final class CheckoutController extends AbstractController
         ),
         responses: [
             new OA\Response(response: 200, description: 'Checkout Realizado correcto se ha generado el id de pedido 6222b469-a0e6-4b3d-9a30-5e2b809b9d41'),
-            new OA\Response(response: 400,
+            new OA\Response(
+                response: 400,
                 description: 'Error en los datos',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -72,7 +73,8 @@ final class CheckoutController extends AbstractController
                     ]
                 )
             ),
-            new OA\Response(response: 404,
+            new OA\Response(
+                response: 404,
                 description: 'Recurso no encontrado',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -99,10 +101,12 @@ final class CheckoutController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(Request $request, string $cartId,
-        SerializerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+    public function __invoke(
+        Request $request,
+        string $cartId,
+        DenormalizerInterface $serializer,
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, ...$data], ProcessCheckoutRequest::class);
@@ -117,12 +121,11 @@ final class CheckoutController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new ProcessCheckoutDTO(
+            $command = new ProcessCheckoutCommand(
                 $cartId,
                 $data['customer_email']
             );
-
-            $orderId = ($this->checkoutHandler)($dto);
+            $orderId = $this->commandBus->handle($command);
 
             return $this->json([
                 'message' => sprintf('Checkout Realizado correcto se ha generado el id de pedido %s', $orderId),

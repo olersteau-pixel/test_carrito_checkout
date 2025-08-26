@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\GetCartDTO;
-use App\Cart\Application\Handlers\GetCart\GetCartHandler;
+use App\Cart\Application\Handlers\GetCart\GetCartQuery;
 use App\Cart\Infrastructure\Http\Requests\GetCartRequest;
+use App\Shared\Application\Bus\QueryBusInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class GetCartController extends AbstractController
 {
     public function __construct(
-        private GetCartHandler $getCartHandler,
+        private QueryBusInterface $queryBus,
     ) {
     }
 
@@ -64,10 +64,11 @@ final class GetCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(string $cartId,
-        SerializerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+    public function __invoke(
+        string $cartId,
+        DenormalizerInterface $serializer,
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId], GetCartRequest::class);
             $errors = $validator->validate($addItemRequest);
@@ -81,8 +82,8 @@ final class GetCartController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new GetCartDTO($cartId);
-            $cartDTO = ($this->getCartHandler)($dto);
+            $query = new GetCartQuery($cartId);
+            $cartDTO = $this->queryBus->handle($query);
 
             return $this->json([
                 'id' => $cartDTO->id,

@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Cart\Infrastructure\Http\Controllers;
 
-use App\Cart\Application\DTO\AddItemToCartDTO;
-use App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler;
+use App\Cart\Application\Handlers\AddItemToCart\AddItemToCartCommand;
 use App\Cart\Infrastructure\Http\Requests\AddItemRequest;
+use App\Shared\Application\Bus\CommandBusInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class AddItemCartController extends AbstractController
 {
     public function __construct(
-        private AddItemToCartHandler $addItemHandler,
+        private CommandBusInterface $commandBus,
     ) {
     }
 
@@ -50,7 +50,8 @@ final class AddItemCartController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Carrito actualizado'),
             new OA\Response(response: 400, description: 'Falta el campo de cantidad'),
-            new OA\Response(response: 404,
+            new OA\Response(
+                response: 404,
                 description: 'Recurso no encontrado',
                 content: new OA\JsonContent(
                     type: 'object',
@@ -77,10 +78,12 @@ final class AddItemCartController extends AbstractController
         ],
         tags: ['Carrito']
     )]
-    public function __invoke(Request $request, string $cartId,
-        SerializerInterface $serializer,
-        ValidatorInterface $validator): JsonResponse
-    {
+    public function __invoke(
+        Request $request,
+        string $cartId,
+        DenormalizerInterface $serializer,
+        ValidatorInterface $validator,
+    ): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
             $addItemRequest = $serializer->denormalize(['cart_id' => $cartId, ...$data], AddItemRequest::class);
@@ -95,16 +98,16 @@ final class AddItemCartController extends AbstractController
                 return $this->json(['error' => implode(',', $errorMessages)], Response::HTTP_BAD_REQUEST);
             }
 
-            $dto = new AddItemToCartDTO(
+            $command = new AddItemToCartCommand(
                 $cartId,
                 $data['product_id'],
                 (int) $data['quantity']
             );
 
-            ($this->addItemHandler)($dto);
+            $this->commandBus->handle($command);
 
             return $this->json(['message' => 'El articulo ha sido correctamente insertado en el carrito'], Response::HTTP_CREATED);
-        } catch (\InvalidArgumentException|NotNormalizableValueException $e) {
+        } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], $e->getCode());
