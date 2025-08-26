@@ -23,3 +23,11 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     Symfony\Component\Serializer\Normalizer\ObjectNormalizer: ~
+
+    # Command Bus
+    App\Shared\Infrastructure\Bus\SymfonyCommandBus:
+        arguments:
+            $commandHandlers: !service_locator
+                App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler: '@App\Cart\Application\Handlers\AddItemToCart\AddItemToCartHandler'
+    
+    App\Shared\Application\Bus\CommandBusInterface: '@App\Shared\Infrastructure\Bus\SymfonyCommandBus'                
