@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Shared\Application\Bus\CommandBusInterface;
 
@@ -75,7 +75,7 @@ final class RemoveItemCartController extends AbstractController
         tags: ['Carrito']
     )]
     public function __invoke(string $cartId, string $productId,
-        SerializerInterface $serializer,
+        DenormalizerInterface $serializer,
         ValidatorInterface $validator): JsonResponse
     {
         try {

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Shared\Application\Bus\CommandBusInterface;
 
@@ -62,7 +62,7 @@ final class UpdateItemCartController extends AbstractController
         tags: ['Carrito']
     )]
     public function __invoke(Request $request, string $cartId, string $productId,
-        SerializerInterface $serializer,
+        DenormalizerInterface $serializer,
         ValidatorInterface $validator): JsonResponse
     {
         try {

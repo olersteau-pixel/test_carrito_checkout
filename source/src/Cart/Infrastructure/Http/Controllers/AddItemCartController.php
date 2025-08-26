@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Shared\Application\Bus\CommandBusInterface;
 
@@ -79,7 +79,7 @@ final class AddItemCartController extends AbstractController
         tags: ['Carrito']
     )]
     public function __invoke(Request $request, string $cartId,
-        SerializerInterface $serializer,
+        DenormalizerInterface $serializer,
         ValidatorInterface $validator): JsonResponse
     {
         try {
@@ -105,7 +105,7 @@ final class AddItemCartController extends AbstractController
             $this->commandBus->handle($command);
 
             return $this->json(['message' => 'El articulo ha sido correctamente insertado en el carrito'], Response::HTTP_CREATED);
-        } catch (\InvalidArgumentException|NotNormalizableValueException $e) {
+        } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], $e->getCode());
